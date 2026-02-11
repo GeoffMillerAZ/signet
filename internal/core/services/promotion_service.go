@@ -35,8 +35,7 @@ func (s *PromotionService) Promote(ctx context.Context, sealID, targetEnv string
 	
 	// 4. Create PR
 	title := fmt.Sprintf("Promote artifact to %s", targetEnv)
-	body := fmt.Sprintf("Automated promotion for Seal ID: %s
-Artifact SHA: %s", sealID, seal.ArtifactSHA)
+	body := fmt.Sprintf("Automated promotion for Seal ID: %s\nArtifact SHA: %s", sealID, seal.ArtifactSHA)
 	
 	prURL, err := s.git.CreatePR(ctx, "deploy-repo", title, body, "promotion-branch", "main")
 	if err != nil {
