@@ -14,6 +14,12 @@ type LedgerPort interface {
 	GetEvidence(ctx context.Context, sealID string) ([]domain.Evidence, error)
 }
 
+// EventStorePort defines the interface for the append-only event log
+type EventStorePort interface {
+	Append(ctx context.Context, event domain.Event) error
+	GetStream(ctx context.Context, streamID string) ([]domain.Event, error)
+}
+
 // LLMProviderPort defines the interface for semantic analysis
 type LLMProviderPort interface {
 	Analyze(ctx context.Context, diff []byte, policy domain.Policy) (domain.Evidence, error)
