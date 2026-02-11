@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package signet.v1;
+
+option go_package = "github.com/geoffmilleraz/signet/proto/signet/v1;signetv1";
+
+import "google/protobuf/timestamp.proto";
+
+service SignetService {
+  // VerifyIntegrity checks the CI workflow file for tampering.
+  rpc VerifyIntegrity(VerifyIntegrityRequest) returns (VerifyIntegrityResponse);
+
+  // Check runs a governance scan on a code diff.
+  rpc Check(CheckRequest) returns (CheckResponse);
+
+  // Promote initiates the movement of a sealed artifact to a target environment.
+  rpc Promote(PromoteRequest) returns (PromoteResponse);
+
+  // GetSeal retrieves a specific seal and its evidence from the ledger.
+  rpc GetSeal(GetSealRequest) returns (GetSealResponse);
+}
+
+message VerifyIntegrityRequest {
+  string workflow_path = 1;
+  string workflow_content = 2;
+}
+
+message VerifyIntegrityResponse {
+  bool valid = 1;
+  string message = 2;
+}
+
+message CheckRequest {
+  string repo_url = 1;
+  string branch = 2;
+  string commit_sha = 3;
+  bytes patch = 4; // The code diff
+}
+
+message CheckResponse {
+  enum Verdict {
+    VERDICT_UNSPECIFIED = 0;
+    VERDICT_PASS = 1;
+    VERDICT_WARN = 2;
+    VERDICT_FAIL = 3;
+  }
+  Verdict verdict = 1;
+  string seal_id = 2; // Only present if PASS or WARN (if allowed)
+  repeated Finding findings = 3;
+}
+
+message Finding {
+  string type = 1;
+  string severity = 2;
+  string file = 3;
+  int32 line = 4;
+  string message = 5;
+  string remediation = 6;
+}
+
+message PromoteRequest {
+  string seal_id = 1;
+  string target_env = 2;
+  bool auto_merge = 3;
+}
+
+message PromoteResponse {
+  string pr_url = 1;
+  string status = 2;
+}
+
+message GetSealRequest {
+  string seal_id = 1;
+}
+
+message GetSealResponse {
+  string seal_id = 1;
+  string artifact_sha = 2;
+  string verdict = 3;
+  google.protobuf.Timestamp created_at = 4;
+  bytes evidence_payload = 5; // JSON/CUE evidence
+}

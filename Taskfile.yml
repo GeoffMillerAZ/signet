@@ -1,0 +1,34 @@
+version: '3'
+
+tasks:
+  dev:
+    desc: Start local development environment
+    cmds:
+      - echo "Starting Signet dev environment..."
+      # - go run cmd/signet/main.go
+
+  test:
+    desc: Run all tests (TDT + UI)
+    cmds:
+      - go test -v ./...
+
+  build:
+    desc: Build production binaries
+    cmds:
+      - go build -o bin/signet cmd/signet/main.go
+
+  lint:
+    desc: Run linters
+    cmds:
+      - golangci-lint run
+      - npm run lint --prefix console
+
+  proto:
+    desc: Generate Go code from Protobuf
+    cmds:
+      - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/signet/v1/signet.proto
+
+  init:
+    desc: Initialize the project dependencies
+    cmds:
+      - go mod tidy
